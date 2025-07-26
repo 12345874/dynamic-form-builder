@@ -15,6 +15,10 @@ const DynamicForm: React.FC = () => {
   });
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
+  /**
+   * Fetches the form schema from the API and sets it in state.
+   * This is done once when the component mounts.
+   */
   useEffect(() => {
     const fetchSchema = async () => {
       try {
@@ -29,14 +33,20 @@ const DynamicForm: React.FC = () => {
     fetchSchema();
   }, []);
 
-  console.log("Form Schema:", schema);
-
+  /**
+   * Handles changes to form fields and updates the formData state.
+   * @param name - The name of the field being changed.
+   * @param value - The new value for the field.
+   */
   const handleChange = (name: string, value: string | number | boolean) => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  console.log("Form Data:", formData);
-
+  /**
+   * Validates the form data against the schema's validation rules.
+   * Sets errors in state if validation fails.
+   * @returns true if validation passes, false otherwise.
+   */
   const validate = () => {
     const newErrors: { [key: string]: string } = {};
     schema?.fields.forEach((field) => {
@@ -61,11 +71,20 @@ const DynamicForm: React.FC = () => {
     return Object.keys(newErrors).length === 0;
   };
 
+  /**
+   * Determines if a field should be displayed based on its dependencies.
+   * @param field - The field to check.
+   * @returns true if the field should be shown, false otherwise.
+   */
   const shouldShowField = (field: Field) => {
     if (!field.dependsOn) return true;
     return formData[field.dependsOn.fieldId] === field.dependsOn.value;
   };
 
+  /**
+   * Handles form submission, validates the form, and logs the data.
+   * @param e - The form submission event.
+   */
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (validate()) {
@@ -73,8 +92,6 @@ const DynamicForm: React.FC = () => {
       console.log("Submitted Data:", formData);
     }
   };
-
-  console.log("Errors:", errors);
 
   if (!schema) return <p>Loading form...</p>;
 
